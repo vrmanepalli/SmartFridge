@@ -29,10 +29,15 @@ public class SmartFridge implements SmartFridgeManager {
 		fridge.forgetItem(44762480055L);
 		printItems(fridge);
 		System.out.println("**********************");
+		fridge.handleItemAdded(44962480065L, "0MYL8", "Chicken", 1.5d);
+		printItems(fridge);
+		System.out.println("**********************");
+		System.out.println(fridge.getFillFactor(44762480055L));
+		System.out.println("**********************");
 	}
 
 	protected static void printItems(SmartFridge fridge) {
-		for(Object obj:fridge.getItems(0.9)) {
+		for(Object obj:fridge.getItems(1.9)) {
 			Item item = (Item) obj;
 			System.out.println(item.toString());
 		}

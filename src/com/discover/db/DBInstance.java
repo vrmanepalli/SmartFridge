@@ -86,6 +86,9 @@ public class DBInstance {
 
 	public Double getFillFactor(Item key) {
 		Optional<Item> item = getKey(key.itemType, items);
+		if (!item.isPresent()) {
+			item = getKey(key.itemType, forgottenItems);
+		} 
 		if (item.isPresent()) {
 			return item.get().fillFactor;
 		}
