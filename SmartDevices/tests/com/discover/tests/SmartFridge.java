@@ -128,6 +128,6 @@ public class SmartFridge {
 		
 		fridge.forgetItem(0L);
 		assertEquals("The first item's fillFactor is 0.85d for 2.0 fillFactor",
-				1.7d, ((Item) fridge.getItems(2.0d)[0]).fillFactor, 0.0d);
+				0.85d, ((Item) fridge.getItems(2.0d)[0]).fillFactor, 0.0d);
 	}
 }

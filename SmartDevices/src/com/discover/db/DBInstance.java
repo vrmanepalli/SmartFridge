@@ -1,6 +1,7 @@
 package com.discover.db;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -63,7 +64,8 @@ public class DBInstance {
 			if (key.isPresent()) {
 				checkAndAddToForgotten(item, key);
 			} else { // Otherwise just add it to our tracking set.
-				items.add(item);
+				items.add(new Item(item.itemType, item.itemUUID, item.name,
+						item.fillFactor));
 			}
 			return;
 		}
@@ -77,9 +79,12 @@ public class DBInstance {
 		List<Item> list = new ArrayList<>();
 		while (it.hasNext()) {
 			Item item = it.next();
-			if (calculateFillFactor(item.fillFactor, item.quantity) > fillFactor) {
+			double localFillFactor = calculateFillFactor(item.fillFactor,
+					item.quantity);
+			if (localFillFactor > fillFactor) {
 				break;
 			}
+			item.fillFactor = localFillFactor;
 			list.add(item);
 		}
 		return list.toArray();
@@ -106,8 +111,8 @@ public class DBInstance {
 	}
 
 	private void checkAndAddToItems(Item item, Optional<Item> key) {
-		checkAndAdd(item, key, items);
 		items.remove(key.get());
+		checkAndAdd(item, key, items);
 		items.add(key.get());
 	}
 
@@ -116,8 +121,8 @@ public class DBInstance {
 	}
 
 	private void checkAndRemoveItems(Item item, Optional<Item> key) {
-		checkAndRemove(item, key, items);
 		items.remove(key.get());
+		checkAndRemove(item, key, items);
 		items.add(key.get());
 	}
 
@@ -162,12 +167,13 @@ public class DBInstance {
 				.findFirst();
 	}
 
-	private Double calculateFillFactor(double d, int quantity) {
+	public static Double calculateFillFactor(double d, int quantity) {
 		if (quantity == 0) {
 			return 0.0;
 		}
 		BigDecimal totalBD = new BigDecimal(d);
-		totalBD = totalBD.divide(new BigDecimal(quantity)).setScale(2,
+		BigDecimal quantityBD = new BigDecimal(quantity);
+		totalBD = totalBD.divide(quantityBD, 2, RoundingMode.HALF_UP).setScale(2,
 				BigDecimal.ROUND_HALF_UP);
 		return totalBD.doubleValue();
 	}

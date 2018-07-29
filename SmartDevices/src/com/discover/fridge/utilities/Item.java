@@ -2,7 +2,9 @@ package com.discover.fridge.utilities;
 
 import java.math.BigDecimal;
 
-public class Item implements Comparable<Item> {
+import com.discover.db.DBInstance;
+
+public class Item implements Comparable<Item>, Cloneable {
 
 	public long itemType;
 	public String itemUUID;
@@ -48,23 +50,14 @@ public class Item implements Comparable<Item> {
 			if (hashCode() == oCopy.hashCode()) {
 				return 0;
 			}
-			if (calculateFillFactor(fillFactor, quantity) <= calculateFillFactor(
-					oCopy.fillFactor, oCopy.quantity)) {
+			if (DBInstance.calculateFillFactor(fillFactor, quantity) <= DBInstance
+					.calculateFillFactor(oCopy.fillFactor, oCopy.quantity)) {
 				return -1;
 			}
 		}
 		// Return 1 if this item's fillfactor is greater than o's or not of Item
 		// type.
 		return 1;
-	}
-
-	private Double calculateFillFactor(double d, int quantity) {
-		if (quantity == 0) {
-			return 0.0;
-		}
-		BigDecimal totalBD = new BigDecimal(d);
-		totalBD = totalBD.divide(new BigDecimal(quantity));
-		return totalBD.doubleValue();
 	}
 
 	@Override
