@@ -1,5 +1,6 @@
 package com.discover.db;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -76,7 +77,7 @@ public class DBInstance {
 		List<Item> list = new ArrayList<>();
 		while (it.hasNext()) {
 			Item item = it.next();
-			if (item.fillFactor > fillFactor) {
+			if (calculateFillFactor(item.fillFactor, item.quantity) > fillFactor) {
 				break;
 			}
 			list.add(item);
@@ -88,9 +89,10 @@ public class DBInstance {
 		Optional<Item> item = getKey(key.itemType, items);
 		if (!item.isPresent()) {
 			item = getKey(key.itemType, forgottenItems);
-		} 
+		}
 		if (item.isPresent()) {
-			return item.get().fillFactor;
+			return calculateFillFactor(item.get().fillFactor,
+					item.get().quantity);
 		}
 		return 0.0;
 	}
@@ -105,6 +107,8 @@ public class DBInstance {
 
 	private void checkAndAddToItems(Item item, Optional<Item> key) {
 		checkAndAdd(item, key, items);
+		items.remove(key.get());
+		items.add(key.get());
 	}
 
 	private void checkAndAddToForgotten(Item item, Optional<Item> key) {
@@ -113,6 +117,8 @@ public class DBInstance {
 
 	private void checkAndRemoveItems(Item item, Optional<Item> key) {
 		checkAndRemove(item, key, items);
+		items.remove(key.get());
+		items.add(key.get());
 	}
 
 	private void checkAndRemoveForgotten(Item item, Optional<Item> key) {
@@ -124,8 +130,11 @@ public class DBInstance {
 		if (item.quantity > 0) {
 			Item keyItem = key.get();
 			keyItem.quantity -= item.quantity;
-			keyItem.fillFactor = calculateFillFactor(keyItem.fillFactor
-					- item.fillFactor, keyItem.quantity);
+			BigDecimal totalBD = new BigDecimal(keyItem.fillFactor);
+			BigDecimal itemBD = new BigDecimal(item.fillFactor);
+			totalBD = totalBD.subtract(itemBD).setScale(2,
+					BigDecimal.ROUND_HALF_UP);
+			keyItem.fillFactor = totalBD.doubleValue();
 		}
 	}
 
@@ -133,8 +142,10 @@ public class DBInstance {
 		if (item.quantity > 0) {
 			Item keyItem = key.get();
 			keyItem.quantity += item.quantity;
-			keyItem.fillFactor = calculateFillFactor(keyItem.fillFactor
-					+ item.fillFactor, keyItem.quantity);
+			BigDecimal totalBD = new BigDecimal(keyItem.fillFactor);
+			BigDecimal itemBD = new BigDecimal(item.fillFactor);
+			totalBD = totalBD.add(itemBD).setScale(2, BigDecimal.ROUND_HALF_UP);
+			keyItem.fillFactor = totalBD.doubleValue();
 		}
 	}
 
@@ -155,7 +166,10 @@ public class DBInstance {
 		if (quantity == 0) {
 			return 0.0;
 		}
-		return Double.valueOf(d / (double) quantity);
+		BigDecimal totalBD = new BigDecimal(d);
+		totalBD = totalBD.divide(new BigDecimal(quantity)).setScale(2,
+				BigDecimal.ROUND_HALF_UP);
+		return totalBD.doubleValue();
 	}
 
 }

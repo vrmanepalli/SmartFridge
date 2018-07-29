@@ -1,5 +1,7 @@
 package com.discover.fridge.utilities;
 
+import java.math.BigDecimal;
+
 public class Item implements Comparable<Item> {
 
 	public long itemType;
@@ -12,7 +14,8 @@ public class Item implements Comparable<Item> {
 		this.itemType = itemType;
 		this.itemUUID = itemUUID;
 		this.name = name;
-		this.fillFactor = fillFactor;
+		this.fillFactor = new BigDecimal(fillFactor).setScale(2,
+				BigDecimal.ROUND_HALF_UP).doubleValue();
 		if (fillFactor.doubleValue() > 0.0) {
 			quantity = 1;
 		}
@@ -45,13 +48,23 @@ public class Item implements Comparable<Item> {
 			if (hashCode() == oCopy.hashCode()) {
 				return 0;
 			}
-			if (fillFactor <= oCopy.fillFactor) {
+			if (calculateFillFactor(fillFactor, quantity) <= calculateFillFactor(
+					oCopy.fillFactor, oCopy.quantity)) {
 				return -1;
 			}
 		}
 		// Return 1 if this item's fillfactor is greater than o's or not of Item
 		// type.
 		return 1;
+	}
+
+	private Double calculateFillFactor(double d, int quantity) {
+		if (quantity == 0) {
+			return 0.0;
+		}
+		BigDecimal totalBD = new BigDecimal(d);
+		totalBD = totalBD.divide(new BigDecimal(quantity));
+		return totalBD.doubleValue();
 	}
 
 	@Override

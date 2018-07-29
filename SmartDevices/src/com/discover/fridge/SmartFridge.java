@@ -11,7 +11,10 @@ public class SmartFridge implements SmartFridgeManager {
 		System.out.println("**********************");
 		printItems(fridge);
 		System.out.println("**********************");
-		fridge.handleItemAdded(44962480055L, "0MHL8", "Bear", 0.5d);
+		fridge.handleItemAdded(44962480055L, "0MHL8", "Bear", 0.9d);
+		printItems(fridge);
+		System.out.println("**********************");
+		fridge.handleItemAdded(44762480055L, "0KHL9", "Water", 2.8d);
 		printItems(fridge);
 		System.out.println("**********************");
 		fridge.handleItemRemoved("0KHL8");
@@ -37,7 +40,7 @@ public class SmartFridge implements SmartFridgeManager {
 	}
 
 	protected static void printItems(SmartFridge fridge) {
-		for(Object obj:fridge.getItems(1.9)) {
+		for(Object obj:fridge.getItems(2.9)) {
 			Item item = (Item) obj;
 			System.out.println(item.toString());
 		}
